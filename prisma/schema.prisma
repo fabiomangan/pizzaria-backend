@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -48,9 +42,11 @@ model Product {
   banner      String
   disabled    Boolean  @default(false)
 
+  items       Item[]
+
   category_id String
   category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -73,16 +69,16 @@ model Order {
 }
 
 model Item {
-  id        String   @id @default(uuid())
-  amount    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  amount     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  order_id  String
-  order     Order @relation(fields: [order_Id], references: [id], onDelete: Cascade)
+  order_id   String
+  order      Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
 
-  product_Id String
-  product   Product @relation(fields: [product_Id], references: [id], onDelete: Cascade)
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@map("items")
 }
