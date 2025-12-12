@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:15
+    container_name: pizzaria-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pizzaria
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: pizzaria-adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:
