@@ -46,13 +46,32 @@ class CreateProductService{
 
             })
 
-            bannerUrl = result;
+            bannerUrl = result.secure_url;
 
         } catch (error) {
             throw new Error("Error ao fazer o upload da imagem")
         }
 
-        return("PRODUTO CRIADO")
+        const product = await prismaClient.product.create({
+            data:{
+                name: name,
+                price: price,
+                description: description,
+                banner: bannerUrl,
+                category_id: category_id,
+            },
+            select:{
+                id: true,
+                name: true,
+                price: true,
+                description: true,
+                category_id: true,
+                banner: true,
+                createdAt: true,
+            }
+        })
+
+        return product;
     }
 }
 

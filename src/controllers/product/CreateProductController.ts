@@ -14,7 +14,7 @@ class CreateProductController{
 
         const product = await createProduct.execute({
             name: name,
-            price: price,
+            price: parseInt(price),
             description: description,
             category_id: category_id,
             imageBuffer: req.file.buffer,
