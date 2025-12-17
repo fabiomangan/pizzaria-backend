@@ -47,7 +47,11 @@ backend/
 │   ├── config/              # Arquivos de configuração
 │   ├── controllers/         # Controllers (camada de controle)
 │   │   ├── category/
-│   │   │   └── CreateCategoryController.ts
+│   │   │   ├── CreateCategoryController.ts
+│   │   │   └── ListCategoryController.ts
+│   │   ├── product/
+│   │   │   ├── CreateProductController.ts
+│   │   │   └── ListProductController.ts
 │   │   └── user/
 │   │       ├── AuthUserController.ts
 │   │       ├── CreateUserController.ts
@@ -63,10 +67,15 @@ backend/
 │   ├── routes.ts            # Definição de todas as rotas
 │   ├── schemas/             # Schemas de validação (Zod)
 │   │   ├── categorySchema.ts
+│   │   ├── productSchema.ts
 │   │   └── userSchema.ts
 │   ├── services/            # Services (lógica de negócio)
 │   │   ├── category/
-│   │   │   └── CreateCategoryService.ts
+│   │   │   ├── CreateCategoryService.ts
+│   │   │   └── ListCategoryService.ts
+│   │   ├── product/
+│   │   │   ├── CreateProductService.ts
+│   │   │   └── ListProductService.ts
 │   │   └── user/
 │   │       ├── AuthUserService.ts
 │   │       ├── CreateUserService.ts
@@ -93,6 +102,8 @@ backend/
 - **cors**: `^2.8.5` - Middleware para habilitar CORS
 - **dotenv**: `^17.2.3` - Gerenciamento de variáveis de ambiente
 - **tsx**: `^4.21.0` - Executor TypeScript para desenvolvimento
+- **multer**: `^2.0.2` - Middleware para upload de arquivos
+- **cloudinary**: `^2.8.0` - Serviço de armazenamento em nuvem para imagens
 
 ### DevDependencies (Desenvolvimento)
 - **typescript**: `^5.9.3` - Linguagem TypeScript
@@ -102,6 +113,7 @@ backend/
 - **@types/cors**: `^2.8.19` - Tipos TypeScript para CORS
 - **@types/jsonwebtoken**: `^9.0.10` - Tipos TypeScript para JWT
 - **@types/pg**: `^8.16.0` - Tipos TypeScript para PostgreSQL
+- **@types/multer**: `^2.0.0` - Tipos TypeScript para Multer
 
 ### Banco de Dados
 - **PostgreSQL**: Versão 15 (via Docker)
@@ -347,6 +359,58 @@ Authorization: Bearer <token>
 
 ---
 
+#### GET `/category`
+Lista todas as categorias.
+
+**Middleware:** `isAuthenticated`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response:** Array de objetos de categorias
+
+---
+
+### Rotas de Produto
+
+#### POST `/product`
+Cria um novo produto com upload de imagem.
+
+**Middlewares:** `isAuthenticated`, `isAdmin`, `upload.single('file')`, `validateSchema(createProductSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+**Body (FormData):**
+- `name`: string (obrigatório) - Nome do produto
+- `price`: string (obrigatório) - Preço do produto em centavos
+- `description`: string (obrigatório) - Descrição do produto
+- `category_id`: string (obrigatório) - ID da categoria
+- `file`: file (obrigatório) - Imagem do banner do produto
+
+**Response:** Objeto do produto criado com URL da imagem
+
+---
+
+#### GET `/products`
+Lista produtos cadastrados, com filtro por `disabled` via query param.
+
+**Middleware:** `isAuthenticated`, `validateSchema(listProductSchema)`
+
+**Query params:**
+- `disabled`: `true` | `false` (opcional, padrão `false`)
+
+**Exemplo:** `/products?disabled=false` — retorna produtos com `disabled: false`.
+
+**Response:** Array de objetos de produto (inclui `category` com `id` e `name`)
+
+---
+
 ## ✅ Validação de Schemas
 
 O projeto utiliza **Zod** para validação de dados de entrada. Os schemas são definidos na pasta `src/schemas/` e aplicados através do middleware `validateSchema`.
@@ -378,6 +442,10 @@ Validação para autenticação:
 #### `createCategorySchema` (`src/schemas/categorySchema.ts`)
 Validação para criação de categoria:
 - `name`: String com mínimo de 2 caracteres
+
+#### `listProductSchema` (`src/schemas/productSchema.ts`)
+Validação para listagem de produtos (query params):
+- `disabled`: `"true"` | `"false"` (opcional, padrão: `"false"`)
 
 ### Middleware de Validação
 
@@ -477,6 +545,27 @@ router.post("/endpoint", isAuthenticated, isAdmin, controller.handle);
 - **JSON Parser**: Habilitado
 - **Error Handler**: Middleware global para tratamento de erros
 
+### Multer (`src/config/multer.ts`)
+Configuração de upload de arquivos:
+- **Storage**: Memory Storage (arquivos mantidos em memória)
+- **Limite de Tamanho**: 4MB máximo por arquivo
+- **Tipos Aceitos**: `image/jpeg`, `image/jpg`, `image/png`
+- **Validação**: Retorna erro se formato não permitido
+
+**Uso:**
+```typescript
+const upload = multer(uploadConfig);
+router.post("/product", upload.single('file'), controller.handle);
+```
+
+### Cloudinary (`src/config/cloudinary.ts`)
+Configuração para armazenamento em nuvem de imagens:
+- **Cloud Name**: Variável de ambiente `CLOUDINARY_CLOUD_NAME`
+- **API Key**: Variável de ambiente `CLOUDINARY_APY_KEY`
+- **API Secret**: Variável de ambiente `CLOUDINARY_APY_SECRET`
+
+**Uso:** Integrado com controllers para fazer upload de imagens para a nuvem após recebimento via Multer
+
 ### Docker (`docker-compose.yml`)
 - **PostgreSQL**: Porta `5432`
 - **Adminer**: Porta `8080` (interface web para gerenciamento do banco)
@@ -489,6 +578,9 @@ router.post("/endpoint", isAuthenticated, isAdmin, controller.handle);
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pizzaria
 JWT_SECRET=sua_chave_secreta_jwt
 PORT=3333
+CLOUDINARY_CLOUD_NAME=seu_cloud_name
+CLOUDINARY_APY_KEY=sua_api_key
+CLOUDINARY_APY_SECRET=seu_api_secret
 ```
 
 ---
@@ -522,5 +614,5 @@ npm run dev
 
 ---
 
-**Última atualização:** Dezembro 2024
+**Última atualização:** Dezembro 2025
 
