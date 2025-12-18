@@ -18,13 +18,14 @@ import { ListProductsByCategoryController } from './controllers/product/ListProd
 import { DeleteProductController } from './controllers/product/DeleteProductController';
 import { CreateOrderController } from './controllers/order/CreateOrderController';
 import { ListOrderController } from './controllers/order/ListOrderController';
-import { createOrderSchema, listOrderSchema } from './schemas/orderSchema';
+import { createOrderSchema, listOrderSchema, sendOrderSchema } from './schemas/orderSchema';
 import { AddItemController } from './controllers/order/AddItemController';
 import { addItemSchema } from './schemas/orderSchema';
 import { RemoveItemController } from './controllers/order/RemoveItemController';
 import { removeItemSchema } from './schemas/orderSchema';
 import { DetailOrderController } from './controllers/order/DetailOrderController';
 import { detailOrderSchema } from './schemas/orderSchema';
+import { SendOrderController } from './controllers/order/SendOrderController';
 
 const router = Router();
 const upload = multer(uploadConfig);
@@ -50,5 +51,6 @@ router.get("/orders", isAuthenticated, validateSchema(listOrderSchema), new List
 router.get("/order/detail", isAuthenticated, validateSchema(detailOrderSchema), new DetailOrderController().handle);
 router.post("/order/add", isAuthenticated, validateSchema(addItemSchema), new AddItemController().handle);
 router.delete("/order/remove", isAuthenticated, validateSchema(removeItemSchema), new RemoveItemController().handle);
+router.put("/order/send", isAuthenticated, validateSchema(sendOrderSchema), new SendOrderController().handle);
 
 export { router };
