@@ -12,3 +12,11 @@ export const listOrderSchema = z.object({
     draft: z.enum(["true", "false"], { message: "O parâmetro draft deve ser 'true' ou 'false'" }).optional().default("false").transform((value) => value === "true"),
   }),
 });
+
+export const addItemSchema = z.object({
+  body: z.object({
+    order_id: z.string({ message: "order deve ser uma string" }).min(1, "A order_id deve ser obrigatória"),
+    product_id: z.string({ message: "product_id deve ser uma string" }).min(1, "O product_id deve ser obrigatória"),
+    amount: z.number().int("Quantidade deve ser um número inteiro").positive("Quantidade deve ser no mínimo 1"),
+  }),
+});

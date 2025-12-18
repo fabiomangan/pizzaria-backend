@@ -520,6 +520,12 @@ Validação para criação de pedido:
 Validação para listagem de pedidos (query params):
 - `draft`: `"true"` | `"false"` (opcional, padrão: `"false"`)
 
+#### `addItemSchema` (`src/schemas/orderSchema.ts`)
+Validação para adicionar item ao pedido:
+- `order_id`: String (obrigatório) - ID do pedido
+- `product_id`: String (obrigatório) - ID do produto
+- `amount`: Number (obrigatório, inteiro, mínimo 1) - Quantidade do item
+
 ### Middleware de Validação
 
 O middleware `validateSchema` valida:
