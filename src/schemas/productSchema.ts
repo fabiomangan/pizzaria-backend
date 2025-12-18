@@ -13,3 +13,9 @@ export const listProductSchema = z.object({
         disabled: z.enum(["true", "false"], { message: "O parâmetro disabled deve ser 'true' ou 'false'" }).optional().default("false").transform((value) => value === "true"),
     }),
 });
+
+export const listProductsByCategorySchema = z.object({
+    query: z.object({
+        category_id: z.string({ message: "O ID da categoria é obrigatório" }),
+    }),
+});

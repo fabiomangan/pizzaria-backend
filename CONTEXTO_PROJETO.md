@@ -411,6 +411,20 @@ Lista produtos cadastrados, com filtro por `disabled` via query param.
 
 ---
 
+#### GET `/category/product`
+Lista produtos de uma categoria específica.
+
+**Middleware:** `isAuthenticated`, `validateSchema(listProductsByCategorySchema)`
+
+**Query params:**
+- `category_id`: string (obrigatório)
+
+**Exemplo:** `/category/product?category_id=uuid-da-categoria`
+
+**Response:** Array de objetos de produto pertencentes à categoria (inclui `category` com `id` e `name`)
+
+---
+
 ## ✅ Validação de Schemas
 
 O projeto utiliza **Zod** para validação de dados de entrada. Os schemas são definidos na pasta `src/schemas/` e aplicados através do middleware `validateSchema`.
