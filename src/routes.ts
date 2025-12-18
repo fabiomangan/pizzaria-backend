@@ -23,6 +23,8 @@ import { AddItemController } from './controllers/order/AddItemController';
 import { addItemSchema } from './schemas/orderSchema';
 import { RemoveItemController } from './controllers/order/RemoveItemController';
 import { removeItemSchema } from './schemas/orderSchema';
+import { DetailOrderController } from './controllers/order/DetailOrderController';
+import { detailOrderSchema } from './schemas/orderSchema';
 
 const router = Router();
 const upload = multer(uploadConfig);
@@ -45,6 +47,7 @@ router.delete("/product", isAuthenticated, isAdmin, new DeleteProductController(
 //ROTAS ORDER
 router.post("/order", isAuthenticated, validateSchema(createOrderSchema), new CreateOrderController().handle);
 router.get("/orders", isAuthenticated, validateSchema(listOrderSchema), new ListOrderController().handle);
+router.get("/order/detail", isAuthenticated, validateSchema(detailOrderSchema), new DetailOrderController().handle);
 router.post("/order/add", isAuthenticated, validateSchema(addItemSchema), new AddItemController().handle);
 router.delete("/order/remove", isAuthenticated, validateSchema(removeItemSchema), new RemoveItemController().handle);
 
