@@ -20,3 +20,9 @@ export const addItemSchema = z.object({
     amount: z.number().int("Quantidade deve ser um número inteiro").positive("Quantidade deve ser no mínimo 1"),
   }),
 });
+ 
+export const removeItemSchema = z.object({
+  query: z.object({
+    item_id: z.string({ message: "item_id deve ser uma string" }).min(1),
+  }),
+});

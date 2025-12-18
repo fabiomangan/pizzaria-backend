@@ -475,6 +475,20 @@ Authorization: Bearer <token>
 
 ---
 
+#### DELETE `/order/remove`
+Remove um item de um pedido.
+
+**Middleware:** `isAuthenticated`, `validateSchema(removeItemSchema)`
+
+**Query params:**
+- `item_id`: string (obrigatório)
+
+**Exemplo:** `/order/remove?item_id=uuid-do-item` — remove o item informado
+
+**Response:** Mensagem de sucesso ou erro caso item não exista
+
+---
+
 ## ✅ Validação de Schemas
 
 O projeto utiliza **Zod** para validação de dados de entrada. Os schemas são definidos na pasta `src/schemas/` e aplicados através do middleware `validateSchema`.
@@ -519,6 +533,10 @@ Validação para criação de pedido:
 #### `listOrderSchema` (`src/schemas/orderSchema.ts`)
 Validação para listagem de pedidos (query params):
 - `draft`: `"true"` | `"false"` (opcional, padrão: `"false"`)
+
+#### `removeItemSchema` (`src/schemas/orderSchema.ts`)
+Validação para remoção de item (query params):
+- `item_id`: String (obrigatório) - ID do item a ser removido
 
 #### `addItemSchema` (`src/schemas/orderSchema.ts`)
 Validação para adicionar item ao pedido:
