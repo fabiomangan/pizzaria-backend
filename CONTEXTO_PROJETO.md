@@ -49,6 +49,9 @@ backend/
 │   │   ├── category/
 │   │   │   ├── CreateCategoryController.ts
 │   │   │   └── ListCategoryController.ts
+│   │   ├── order/
+│   │   │   ├── CreateOrderController.ts
+│   │   │   └── ListOrderController.ts
 │   │   ├── product/
 │   │   │   ├── CreateProductController.ts
 │   │   │   └── ListProductController.ts
@@ -67,12 +70,16 @@ backend/
 │   ├── routes.ts            # Definição de todas as rotas
 │   ├── schemas/             # Schemas de validação (Zod)
 │   │   ├── categorySchema.ts
+│   │   ├── orderSchema.ts
 │   │   ├── productSchema.ts
 │   │   └── userSchema.ts
 │   ├── services/            # Services (lógica de negócio)
 │   │   ├── category/
 │   │   │   ├── CreateCategoryService.ts
 │   │   │   └── ListCategoryService.ts
+│   │   ├── order/
+│   │   │   ├── CreateOrderService.ts
+│   │   │   └── ListOrderService.ts
 │   │   ├── product/
 │   │   │   ├── CreateProductService.ts
 │   │   │   └── ListProductService.ts
@@ -425,6 +432,49 @@ Lista produtos de uma categoria específica.
 
 ---
 
+### Rotas de Pedido
+
+#### POST `/order`
+Cria um novo pedido.
+
+**Middleware:** `isAuthenticated`, `validateSchema(createOrderSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "table": 1,
+  "name": "string (nome do cliente)"
+}
+```
+
+**Response:** Objeto do pedido criado (com `status: false`, `draft: true`)
+
+---
+
+#### GET `/orders`
+Lista pedidos com filtro opcional por `draft`.
+
+**Middleware:** `isAuthenticated`, `validateSchema(listOrderSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query params:**
+- `draft`: `true` | `false` (opcional, padrão `false`)
+
+**Exemplo:** `/orders?draft=true` — retorna pedidos em rascunho (ainda não enviados para cozinha).
+
+**Response:** Array de objetos de pedido (inclui `items` com informações do produto)
+
+---
+
 ## ✅ Validação de Schemas
 
 O projeto utiliza **Zod** para validação de dados de entrada. Os schemas são definidos na pasta `src/schemas/` e aplicados através do middleware `validateSchema`.
@@ -460,6 +510,15 @@ Validação para criação de categoria:
 #### `listProductSchema` (`src/schemas/productSchema.ts`)
 Validação para listagem de produtos (query params):
 - `disabled`: `"true"` | `"false"` (opcional, padrão: `"false"`)
+
+#### `createOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para criação de pedido:
+- `table`: Number (obrigatório, inteiro) - Número da mesa
+- `name`: String (obrigatório, mínimo 1 caractere) - Nome do cliente
+
+#### `listOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para listagem de pedidos (query params):
+- `draft`: `"true"` | `"false"` (opcional, padrão: `"false"`)
 
 ### Middleware de Validação
 

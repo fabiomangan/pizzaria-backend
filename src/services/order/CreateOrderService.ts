@@ -1,0 +1,37 @@
+import prismaClient from "../../prisma";
+
+interface CreateOrderServiceProps {
+  table: number;
+  name: string;
+}
+
+class CreateOrderService {
+  async execute({ table, name }: CreateOrderServiceProps) {
+    try {
+      const order = await prismaClient.order.create({
+        data: {
+          table,
+          name,
+          status: false,
+          draft: true,
+        },
+        select: {
+          id: true,
+          table: true,
+          name: true,
+          status: true,
+          draft: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      return order;
+      
+    } catch (error) {
+      throw new Error("Falha ao criar pedido");
+    }
+  }
+}
+
+export { CreateOrderService };

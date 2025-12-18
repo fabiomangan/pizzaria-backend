@@ -57,7 +57,7 @@ model Order {
   id        String   @id @default(uuid())
   table     Int
   status    Boolean  @default(false) // false = pendente, true = pronto
-  draft     Boolean  @default(true) // false = rascunho, true = foi para cozinha.
+  draft     Boolean  @default(true) // false = foi para cozinha, true = rascunho.
   name      String?
 
   items     Item[]
