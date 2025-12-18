@@ -51,14 +51,22 @@ backend/
 │   │   │   └── ListCategoryController.ts
 │   │   ├── order/
 │   │   │   ├── CreateOrderController.ts
-│   │   │   └── ListOrderController.ts
+│   │   │   ├── ListOrderController.ts
+│   │   │   ├── DetailOrderController.ts
+│   │   │   ├── AddItemController.ts
+│   │   │   ├── RemoveItemController.ts
+│   │   │   ├── SendOrderController.ts
+│   │   │   ├── FinishOrderController.ts
+│   │   │   └── DeleteOrderController.ts
 │   │   ├── product/
 │   │   │   ├── CreateProductController.ts
-│   │   │   └── ListProductController.ts
+│   │   │   ├── ListProductController.ts
+│   │   │   ├── ListProductsByCategoryController.ts
+│   │   │   └── DeleteProductController.ts
 │   │   └── user/
 │   │       ├── AuthUserController.ts
 │   │       ├── CreateUserController.ts
-│   │       └── DeatailUserController.ts
+│   │       └── DetailUserController.ts
 │   ├── generated/           # Arquivos gerados pelo Prisma
 │   │   └── prisma/
 │   ├── middlewares/         # Middlewares da aplicação
@@ -79,10 +87,18 @@ backend/
 │   │   │   └── ListCategoryService.ts
 │   │   ├── order/
 │   │   │   ├── CreateOrderService.ts
-│   │   │   └── ListOrderService.ts
+│   │   │   ├── ListOrderService.ts
+│   │   │   ├── DetailOrderService.ts
+│   │   │   ├── AddItemOrderService.ts
+│   │   │   ├── RemoveItemOrderService.ts
+│   │   │   ├── SendOrderService.ts
+│   │   │   ├── FinishOrderService.ts
+│   │   │   └── DeleteOrderService.ts
 │   │   ├── product/
 │   │   │   ├── CreateProductService.ts
-│   │   │   └── ListProductService.ts
+│   │   │   ├── ListProductService.ts
+│   │   │   ├── ListProductsByCategoryService.ts
+│   │   │   └── DeleteProductService.ts
 │   │   └── user/
 │   │       ├── AuthUserService.ts
 │   │       ├── CreateUserService.ts
@@ -475,6 +491,48 @@ Authorization: Bearer <token>
 
 ---
 
+#### GET `/order/detail`
+Retorna todos os detalhes de um pedido específico.
+
+**Middleware:** `isAuthenticated`, `validateSchema(detailOrderSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query params:**
+- `order_id`: string (obrigatório)
+
+**Exemplo:** `/order/detail?order_id=uuid-do-pedido` — retorna detalhes do pedido (inclui todos os itens com informações dos produtos)
+
+**Response:** Objeto do pedido com items (inclui product details)
+
+---
+
+#### POST `/order/add`
+Adiciona um item (produto) ao pedido.
+
+**Middleware:** `isAuthenticated`, `validateSchema(addItemSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "order_id": "uuid-do-pedido",
+  "product_id": "uuid-do-produto",
+  "amount": 2
+}
+```
+
+**Response:** Objeto do item criado (com informações do produto)
+
+---
+
 #### DELETE `/order/remove`
 Remove um item de um pedido.
 
@@ -486,6 +544,63 @@ Remove um item de um pedido.
 **Exemplo:** `/order/remove?item_id=uuid-do-item` — remove o item informado
 
 **Response:** Mensagem de sucesso ou erro caso item não exista
+
+---
+
+#### PUT `/order/send`
+Envia o pedido para a cozinha (marca draft como true e atualiza nome).
+
+**Middleware:** `isAuthenticated`, `validateSchema(sendOrderSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "order_id": "uuid-do-pedido",
+  "name": "Nome do cliente"
+}
+```
+
+**Response:** Objeto do pedido atualizado
+
+---
+
+#### PUT `/order/finish`
+Marca um pedido como finalizado (status = true).
+
+**Middleware:** `isAuthenticated`, `validateSchema(finishOrderSchema)`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "order_id": "uuid-do-pedido"
+}
+```
+
+**Response:** Objeto do pedido atualizado (status: true)
+
+---
+
+#### DELETE `/order`
+Remove um pedido por completo.
+
+**Middleware:** `isAuthenticated`, `validateSchema(deleteOrderSchema)`
+
+**Query params:**
+- `order_id`: string (obrigatório)
+
+**Exemplo:** `/order?order_id=uuid-do-pedido` — remove o pedido informado
+
+**Response:** Mensagem de sucesso ou objeto do pedido deletado
 
 ---
 
@@ -534,15 +649,32 @@ Validação para criação de pedido:
 Validação para listagem de pedidos (query params):
 - `draft`: `"true"` | `"false"` (opcional, padrão: `"false"`)
 
-#### `removeItemSchema` (`src/schemas/orderSchema.ts`)
-Validação para remoção de item (query params):
-- `item_id`: String (obrigatório) - ID do item a ser removido
-
 #### `addItemSchema` (`src/schemas/orderSchema.ts`)
 Validação para adicionar item ao pedido:
 - `order_id`: String (obrigatório) - ID do pedido
 - `product_id`: String (obrigatório) - ID do produto
 - `amount`: Number (obrigatório, inteiro, mínimo 1) - Quantidade do item
+
+#### `removeItemSchema` (`src/schemas/orderSchema.ts`)
+Validação para remoção de item (query params):
+- `item_id`: String (obrigatório) - ID do item a ser removido
+
+#### `detailOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para obter detalhes do pedido (query params):
+- `order_id`: String (obrigatório) - ID do pedido
+
+#### `sendOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para enviar pedido para cozinha:
+- `order_id`: String (obrigatório) - ID do pedido
+- `name`: String (obrigatório) - Nome do cliente
+
+#### `finishOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para finalizar pedido:
+- `order_id`: String (obrigatório) - ID do pedido
+
+#### `deleteOrderSchema` (`src/schemas/orderSchema.ts`)
+Validação para deletar pedido (query params):
+- `order_id`: String (obrigatório) - ID do pedido
 
 ### Middleware de Validação
 
